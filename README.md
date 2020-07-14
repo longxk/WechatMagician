@@ -4,6 +4,8 @@ _Read this README.md in other languages:_  [English](https://github.com/Gh0u1L5/
 
 WechatMagician是一款骚兮兮的Xposed插件，底层使用 __[WechatSpellbook](https://github.com/Gh0u1L5/WechatSpellbook)__ 框架，致力于让用户彻底掌控微信上的聊天消息及朋友圈内容，支持微信 6.5.3 及以上版本。
 
+__目前支持到微信7.15，HOOK框架使用EdXposed__
+
 ## 快速上手
 
 第一次clone项目的时候，记得加上```--recursive ```参数，因为WechatMagican依赖 __[WechatSpellbook](https://github.com/Gh0u1L5/WechatSpellbook)__ 框架。
@@ -37,15 +39,6 @@ git submodule update --init --recursive
 
 #### 其他杂项
 1. 自动确认电脑端登录请求（开启该功能即视为用户同意自行承担可能的安全风险）。
-
-## QQ群 / 微信群
-官方QQ群：
-* 一群：135955386（已满）
-* 二群：157550472
-
-官方微信群：
-1. 添加微信账号 "XposedHelper" 发送关键词 “微信巫师”
-2. 添加微信账号 "CSYJZF"
 
 ## 设计理念
 
