@@ -1,6 +1,5 @@
 package com.gh0u1l5.wechatmagician.frontend.fragments
 
-import android.app.Fragment
 import android.content.ComponentName
 import android.content.Intent
 import android.net.Uri
@@ -10,6 +9,7 @@ import android.view.View
 import android.view.View.GONE
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import com.gh0u1l5.wechatmagician.Global.WECHAT_PACKAGE_NAME
 import com.gh0u1l5.wechatmagician.R
 import com.gh0u1l5.wechatmagician.frontend.fragments.StatusFragment.Companion.requireHookStatus

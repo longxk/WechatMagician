@@ -6,13 +6,13 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager.*
 import android.os.Build
 import android.os.Bundle
-import android.preference.PreferenceFragment
-import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
+import androidx.preference.PreferenceFragmentCompat
 import com.gh0u1l5.wechatmagician.Global.ACTION_UPDATE_PREF
 import com.gh0u1l5.wechatmagician.Global.FOLDER_SHARED_PREFS
 import com.gh0u1l5.wechatmagician.Global.MAGICIAN_PACKAGE_NAME
@@ -23,7 +23,11 @@ import com.gh0u1l5.wechatmagician.util.IPCUtil.putExtra
 import com.gh0u1l5.wechatmagician.util.LocaleUtil
 import java.io.File
 
-class PrefFragment : PreferenceFragment(), SharedPreferences.OnSharedPreferenceChangeListener {
+class PrefFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
+
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

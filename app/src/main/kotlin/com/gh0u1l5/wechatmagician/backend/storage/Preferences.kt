@@ -35,7 +35,7 @@ class Preferences(private val preferencesName: String) : SharedPreferences {
                 // Load the shared preferences using ContentProvider.
                 val uri = Uri.parse("content://$PREFERENCE_PROVIDER_AUTHORITY/$preferencesName")
                 val cursor = context.contentResolver.query(uri, null, null, null, null)
-                cursor.use {
+                cursor?.use {
                     while (cursor.moveToNext()) {
                         val key = cursor.getString(0)
                         val type = cursor.getString(2)
@@ -76,8 +76,8 @@ class Preferences(private val preferencesName: String) : SharedPreferences {
             }
             // Otherwise we completely follow the new ContentProvider pattern.
             if (intent != null) {
-                val key = intent.getStringExtra("key")
-                content[key] = intent.extras.get("value")
+                val key = intent.getStringExtra("key") ?: return
+                content[key] = intent.extras?.get("value")
             }
         }
     }
@@ -90,7 +90,7 @@ class Preferences(private val preferencesName: String) : SharedPreferences {
 
     private fun cacheStringList() {
         PREFERENCE_STRING_LIST_KEYS.forEach { key ->
-            listCache[key] = getString(key, "").split(" ", "|").filter { it.isNotEmpty() }
+            listCache[key] = getString(key, "")?.split(" ", "|")?.filter { it.isNotEmpty() } ?: emptyList()
         }
     }
 
@@ -113,9 +113,9 @@ class Preferences(private val preferencesName: String) : SharedPreferences {
 
     override fun getBoolean(key: String, defValue: Boolean): Boolean = getValue(key, defValue)
 
-    override fun getString(key: String, defValue: String): String = getValue(key, defValue)
+    override fun getString(key: String, defValue: String?): String? = getValue(key, defValue)
 
-    override fun getStringSet(key: String, defValue: MutableSet<String>): MutableSet<String> = getValue(key, defValue)
+    override fun getStringSet(key: String, defValue: MutableSet<String>?): MutableSet<String>? = getValue(key, defValue)
 
     fun getStringList(key: String, defValue: List<String>): List<String> {
         loadChannel.wait(100)

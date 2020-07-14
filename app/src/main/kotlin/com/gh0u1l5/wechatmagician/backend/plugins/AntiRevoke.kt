@@ -47,7 +47,7 @@ object AntiRevoke : IDatabaseHook, IFileSystemHook, IMessageStorageHook, IXmlPar
             val msg = result[REPLACE_MSG_TAG] ?: return
             if (msg.startsWith("\"")) {
                 val default = Strings.getString(R.string.prompt_message_recall)
-                val prompt = pref.getString(SETTINGS_CHATTING_RECALL_PROMPT, default)
+                val prompt = pref.getString(SETTINGS_CHATTING_RECALL_PROMPT, default) ?: return
                 result[REPLACE_MSG_TAG] = MessageUtil.applyEasterEgg(msg, prompt)
             }
         }

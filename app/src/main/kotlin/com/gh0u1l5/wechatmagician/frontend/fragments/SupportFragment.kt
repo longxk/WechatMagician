@@ -1,18 +1,18 @@
 package com.gh0u1l5.wechatmagician.frontend.fragments
 
 import android.app.Activity.RESULT_OK
-import android.app.Fragment
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.content.FileProvider.getUriForFile
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.FileProvider.getUriForFile
+import androidx.fragment.app.Fragment
 import com.gh0u1l5.wechatmagician.Global.ACTION_REQUIRE_REPORTS
 import com.gh0u1l5.wechatmagician.Global.MAGICIAN_FILE_PROVIDER
 import com.gh0u1l5.wechatmagician.Global.XPOSED_BASE_DIR

@@ -18,7 +18,7 @@ object LocaleUtil {
 
     fun getLanguage(context: Context, default: String = Locale.getDefault().language): String {
         val settings = context.getProtectedSharedPreferences(PREFERENCE_NAME_SETTINGS, MODE_PRIVATE)
-        return settings.getString(SETTINGS_MODULE_LANGUAGE, default)
+        return settings?.getString(SETTINGS_MODULE_LANGUAGE, default) ?: default
     }
 
     fun onAttach(context: Context, default: String = Locale.getDefault().language): Context {

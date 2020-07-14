@@ -30,19 +30,19 @@ class PrefProvider : ContentProvider() {
     }
 
     override fun onCreate(): Boolean {
-        preferences[PREFERENCE_NAME_SETTINGS]  = context.getProtectedSharedPreferences(PREFERENCE_NAME_SETTINGS, MODE_PRIVATE)
-        preferences[PREFERENCE_NAME_DEVELOPER] = context.getProtectedSharedPreferences(PREFERENCE_NAME_DEVELOPER, MODE_PRIVATE)
+        preferences[PREFERENCE_NAME_SETTINGS]  = context!!.getProtectedSharedPreferences(PREFERENCE_NAME_SETTINGS, MODE_PRIVATE)
+        preferences[PREFERENCE_NAME_DEVELOPER] = context!!.getProtectedSharedPreferences(PREFERENCE_NAME_DEVELOPER, MODE_PRIVATE)
 
         return true
     }
 
-    override fun getType(uri: Uri?): String? = null
+    override fun getType(uri: Uri): String? = null
 
-    override fun insert(uri: Uri?, values: ContentValues?): Uri {
+    override fun insert(uri: Uri, values: ContentValues?): Uri {
         throw UnsupportedOperationException("Wechat Magician PrefProvider: Cannot modify read-only preferences!")
     }
 
-    override fun query(uri: Uri?, projection: Array<out String>?, selection: String?, selectionArgs: Array<out String>?, sortOrder: String?): Cursor? {
+    override fun query(uri: Uri, projection: Array<out String>?, selection: String?, selectionArgs: Array<out String>?, sortOrder: String?): Cursor? {
         if (uri == null) {
             return null
         }
@@ -59,11 +59,11 @@ class PrefProvider : ContentProvider() {
         }
     }
 
-    override fun update(uri: Uri?, values: ContentValues?, selection: String?, selectionArgs: Array<out String>?): Int {
+    override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<out String>?): Int {
         throw UnsupportedOperationException("Wechat Magician PrefProvider: Cannot modify read-only preferences!")
     }
 
-    override fun delete(uri: Uri?, selection: String?, selectionArgs: Array<out String>?): Int {
+    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int {
         throw UnsupportedOperationException("Wechat Magician PrefProvider: Cannot modify read-only preferences!")
     }
 }

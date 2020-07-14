@@ -5,10 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.support.v4.content.FileProvider
-import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.webkit.MimeTypeMap
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.FileProvider.getUriForFile
 import com.gh0u1l5.wechatmagician.BuildConfig
 import com.gh0u1l5.wechatmagician.Global.MAGICIAN_FILE_PROVIDER
 import com.gh0u1l5.wechatmagician.R
@@ -75,7 +75,7 @@ object UpdateUtil {
             context.startActivity(Intent().apply {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     action = Intent.ACTION_INSTALL_PACKAGE
-                    data = FileProvider.getUriForFile(context, MAGICIAN_FILE_PROVIDER, apk)
+                    data = getUriForFile(context, MAGICIAN_FILE_PROVIDER, apk)
                     flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
                 } else {
                     action = Intent.ACTION_VIEW

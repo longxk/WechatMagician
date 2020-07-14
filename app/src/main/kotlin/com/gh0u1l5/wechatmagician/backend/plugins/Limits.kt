@@ -41,7 +41,7 @@ object Limits : IActivityHook, HookerProvider {
                 val intent = activity.intent ?: return
                 val oldLimit = intent.getIntExtra("max_select_count", 9)
                 val newLimit = try {
-                    pref.getString(SETTINGS_SELECT_PHOTOS_LIMIT, "1000").toInt()
+                    pref.getString(SETTINGS_SELECT_PHOTOS_LIMIT, "1000")?.toInt() ?: 1000
                 } catch (_: Throwable) { 1000 }
                 if (oldLimit <= 9) {
                     intent.putExtra("max_select_count", oldLimit + newLimit - 9)

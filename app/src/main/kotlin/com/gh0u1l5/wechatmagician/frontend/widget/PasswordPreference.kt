@@ -16,8 +16,8 @@ class PasswordPreference : EditTextPreference {
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes)
 
     override fun onClick() {
-        val pref = preferenceManager.sharedPreferences
-        val encrypted = pref.getString(key, "")
+        val pref = preferenceManager.sharedPreferences ?: return
+        val encrypted = pref.getString(key, "") ?: ""
         if (encrypted.isEmpty()) {
             PasswordUtil.createPassword(context, "Wechat Magician", pref, key)
         } else {

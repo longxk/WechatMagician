@@ -18,7 +18,7 @@ class PasswordSwitchPreference : SwitchPreference {
 
     override fun onClick() {
         val pref = preferenceManager.sharedPreferences
-        val encrypted = pref.getString("${key}_password", "")
+        val encrypted = pref.getString("${key}_password", "") ?: ""
 
         val status = pref.getBoolean(key, false)
         if (status) { // close

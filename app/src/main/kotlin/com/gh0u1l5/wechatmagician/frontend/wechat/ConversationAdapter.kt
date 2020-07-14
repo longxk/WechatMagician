@@ -47,7 +47,7 @@ class ConversationAdapter(context: Context, val conversations: MutableList<Conve
         }
     }
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         var view = convertView as LinearLayout?
         if (view == null) {
             val containerLayout = XposedHelpers.callMethod(parent, "generateDefaultLayoutParams")
@@ -83,7 +83,7 @@ class ConversationAdapter(context: Context, val conversations: MutableList<Conve
             }
         }
         return view.apply {
-            val conversation = getItem(position)
+            val conversation = getItem(position) ?: return@apply
             val nickname = getChildAt(0) as TextView?
             val digest = getChildAt(1) as TextView?
             if (conversation.nickname.isEmpty()) {

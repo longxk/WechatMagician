@@ -119,7 +119,7 @@ object PasswordUtil {
         } else {
             Strings.getString(R.string.prompt_verify_password)
         }
-        val encrypted = preferences.getString(key, "")
+        val encrypted = preferences.getString(key, "") ?: ""
         askPasswordWithVerify(context, title, message, encrypted) {
             createPassword(context, title, preferences, key, onFinish)
         }

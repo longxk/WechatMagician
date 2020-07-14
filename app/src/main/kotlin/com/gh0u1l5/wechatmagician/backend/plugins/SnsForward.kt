@@ -160,9 +160,9 @@ object SnsForward : IActivityHook, IAdapterHook, IDatabaseHook, IXmlParserHook {
         if (adapter === SnsUserUIAdapterObject.get()) {
             if (convertView == null) { // this is a new view
                 if (result is ViewGroup) {
-                    repeat(result.childCount, {
+                    repeat(result.childCount) {
                         result.getChildAt(it).isClickable = false
-                    })
+                    }
                 }
                 result.isLongClickable = true
             }

@@ -59,10 +59,10 @@ object SecretFriend : IActivityHook, IAdapterHook, INotificationHook, IPopupMenu
         if (!isPluginEnabled()) {
             return
         }
-        ListViewHider.register(adapter, "Secret Friend", { item ->
+        ListViewHider.register(adapter, "Secret Friend") { item ->
             val username = getObjectField(item, "field_username")
             username in SecretFriendList
-        })
+        }
     }
 
     override fun onAddressAdapterCreated(adapter: BaseAdapter) = onAdapterCreated(adapter)
@@ -98,7 +98,7 @@ object SecretFriend : IActivityHook, IAdapterHook, INotificationHook, IPopupMenu
         }
         val textHideFriend = Strings.getString(R.string.button_hide_friend)
         val itemId = ITEM_ID_BUTTON_HIDE_FRIEND
-        val title = pref.getString(SETTINGS_SECRET_FRIEND_HIDE_OPTION, textHideFriend)
+        val title = pref.getString(SETTINGS_SECRET_FRIEND_HIDE_OPTION, textHideFriend) ?: ""
         val onClickListener = { context: Context ->
             changeUserStatusByUsername(context, username, true)
         }
@@ -117,7 +117,7 @@ object SecretFriend : IActivityHook, IAdapterHook, INotificationHook, IPopupMenu
 
         when {
             command.startsWith("hide ") -> {
-                val encrypted = pref.getString(SETTINGS_SECRET_FRIEND_PASSWORD, "")
+                val encrypted = pref.getString(SETTINGS_SECRET_FRIEND_PASSWORD, "") ?: ""
                 if (encrypted.isEmpty()) {
                     mainHandler.post {
                         Toast.makeText(context, promptPasswordMissing, Toast.LENGTH_SHORT).show()
@@ -129,7 +129,7 @@ object SecretFriend : IActivityHook, IAdapterHook, INotificationHook, IPopupMenu
                 return true
             }
             command.startsWith("unhide ") -> {
-                val encrypted = pref.getString(SETTINGS_SECRET_FRIEND_PASSWORD, "")
+                val encrypted = pref.getString(SETTINGS_SECRET_FRIEND_PASSWORD, "") ?: ""
                 if (encrypted.isEmpty()) {
                     mainHandler.post {
                         Toast.makeText(context, promptPasswordMissing, Toast.LENGTH_SHORT).show()

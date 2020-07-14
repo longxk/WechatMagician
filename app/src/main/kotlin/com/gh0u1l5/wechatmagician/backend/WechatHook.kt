@@ -22,6 +22,7 @@ import com.gh0u1l5.wechatmagician.backend.plugins.Developer
 import com.gh0u1l5.wechatmagician.backend.storage.Preferences
 import com.gh0u1l5.wechatmagician.backend.storage.list.ChatroomHideList
 import com.gh0u1l5.wechatmagician.backend.storage.list.SecretFriendList
+import com.gh0u1l5.wechatmagician.spellbook.C
 import com.gh0u1l5.wechatmagician.spellbook.SpellBook
 import com.gh0u1l5.wechatmagician.spellbook.SpellBook.getApplicationApkPath
 import com.gh0u1l5.wechatmagician.spellbook.SpellBook.isImportantWechatProcess
@@ -35,14 +36,12 @@ import com.gh0u1l5.wechatmagician.spellbook.util.BasicUtil.tryVerbosely
 import com.gh0u1l5.wechatmagician.spellbook.util.FileUtil
 import com.gh0u1l5.wechatmagician.spellbook.util.FileUtil.createTimeTag
 import com.gh0u1l5.wechatmagician.spellbook.util.MirrorUtil.generateReport
+import dalvik.system.BaseDexClassLoader
 import dalvik.system.PathClassLoader
-import de.robv.android.xposed.IXposedHookLoadPackage
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XC_MethodReplacement
-import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.*
 import de.robv.android.xposed.XposedBridge.log
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
-import de.robv.android.xposed.callbacks.XC_LoadPackage
+import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 import java.io.File
 
 // WechatHook is the entry point of the module, here we load all the plugins.
@@ -76,7 +75,7 @@ class WechatHook : IXposedHookLoadPackage {
                 tryAsynchronously {
                     val reportHead = listOf (
                             "Device: SDK${Build.VERSION.SDK_INT}-${Build.PRODUCT}",
-                            "Xposed Version: ${XposedBridge.XPOSED_BRIDGE_VERSION}",
+                            "Xposed Version: ${XposedBridge.getXposedVersion()}",
                             "Wechat Version: $wxVersion",
                             "Module Version: ${BuildConfig.VERSION_NAME}"
                     ).joinToString("\n")
@@ -114,25 +113,73 @@ class WechatHook : IXposedHookLoadPackage {
     }
 
     // NOTE: Remember to catch all the exceptions here, otherwise you may get boot loop.
-    override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
+    override fun handleLoadPackage(lpparam: LoadPackageParam) {
         tryVerbosely {
             when (lpparam.packageName) {
                 MAGICIAN_PACKAGE_NAME ->
-                    hookAttachBaseContext(lpparam.classLoader, { _ ->
+                    hookAttachBaseContext(lpparam.classLoader) { _ ->
                         handleLoadMagician(lpparam.classLoader)
-                    })
+                    }
                 else -> if (isImportantWechatProcess(lpparam)) {
                     log("Wechat Magician: process = ${lpparam.processName}, version = ${BuildConfig.VERSION_NAME}")
-                    hookAttachBaseContext(lpparam.classLoader, { context ->
-                        if (!BuildConfig.DEBUG) {
-                            handleLoadWechat(lpparam, context)
-                        } else {
-                            handleLoadWechatOnFly(lpparam, context)
-                        }
-                    })
+                    if (!handleLoadWechatPlayPkg(lpparam)) {
+                        handleLoadWechatGenericPkg(lpparam)
+                    }
                 }
             }
         }
+    }
+
+    private fun handleLoadWechatGenericPkg(lpparam: LoadPackageParam) {
+        findAndHookMethod(
+                "android.content.ContextWrapper",
+                lpparam.classLoader,
+                "attachBaseContext",
+                Context::class.java,
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        if (param.thisObject !is Application) return
+
+                    }
+
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        if (param.thisObject !is Application) return
+
+                        val context = param.args[0] as Context
+
+                        handleLoadWechat(lpparam, context)
+                        log("handleLoadWechatGenericPkg")
+                    }
+                }
+        )
+    }
+
+    private fun handleLoadWechatPlayPkg(lpparam: LoadPackageParam): Boolean {
+        val method = XposedHelpers.findMethodExactIfExists(
+                "com.tencent.tinker.loader.SystemClassLoaderAdder",
+                lpparam.classLoader,
+                "injectNewClassLoaderOnDemand",
+                Application::class.java,
+                BaseDexClassLoader::class.java,
+                C.Int
+        ) ?: return false
+
+
+        XposedBridge.hookMethod(method,
+                object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        log("handleLoadWechatPlayPkg hooked")
+
+                        val context = param.args[0] as Context
+                        val classLoader = param.result as ClassLoader
+                        lpparam.classLoader = classLoader
+
+                        handleLoadWechat(lpparam, context)
+                        log("handleLoadWechatPlayPkg")
+                    }
+                }
+        )
+        return true
     }
 
     @Suppress("DEPRECATION")
@@ -145,12 +192,14 @@ class WechatHook : IXposedHookLoadPackage {
         findAndHookMethod(
                 "$MAGICIAN_PACKAGE_NAME.frontend.fragments.StatusFragment", loader,
                 "getXposedVersion", object : XC_MethodReplacement() {
-            override fun replaceHookedMethod(param: MethodHookParam): Any = XposedBridge.XPOSED_BRIDGE_VERSION
+            override fun replaceHookedMethod(param: MethodHookParam): Any = XposedBridge.getXposedVersion()
         })
     }
 
     // handleLoadWechat is the entry point for Wechat hooking logic.
-    private fun handleLoadWechat(lpparam: XC_LoadPackage.LoadPackageParam, context: Context) {
+    private fun handleLoadWechat(lpparam: LoadPackageParam, context: Context) {
+        if (BuildConfig.DEBUG) enableXlogOutput(lpparam, true, 0)
+
         // Register receivers for frontend communications
         tryVerbosely {
             context.registerReceiver(requireHookStatusReceiver, IntentFilter(ACTION_REQUIRE_HOOK_STATUS))
@@ -184,7 +233,7 @@ class WechatHook : IXposedHookLoadPackage {
     }
 
     // handleLoadWechatOnFly uses reflection to load updated module without reboot.
-    private fun handleLoadWechatOnFly(lpparam: XC_LoadPackage.LoadPackageParam, context: Context) {
+    private fun handleLoadWechatOnFly(lpparam: LoadPackageParam, context: Context) {
         val path = getApplicationApkPath(MAGICIAN_PACKAGE_NAME)
         if (!File(path).exists()) {
             log("Cannot load module on fly: APK not found")
@@ -195,5 +244,33 @@ class WechatHook : IXposedHookLoadPackage {
         val method = clazz.getDeclaredMethod("handleLoadWechat", lpparam::class.java, Context::class.java)
         method.isAccessible = true
         method.invoke(clazz.newInstance(), lpparam, context)
+    }
+
+    private fun enableXlogOutput(lpparam: LoadPackageParam, enable: Boolean, level: Int) {
+        findAndHookMethod(
+                "com.tencent.mars.xlog.Xlog",
+                lpparam.classLoader,
+                "setConsoleLogOpen",
+                C.Boolean,
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        log("xlog redirects to logcat: $enable")
+                        param.args[0] = enable
+                    }
+                }
+        )
+
+        findAndHookMethod(
+                "com.tencent.mars.xlog.Xlog",
+                lpparam.classLoader,
+                "AppenderOpen",
+                C.Int, C.Int, C.String, C.String, C.String, C.Int,
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        log("xlog level set to $level")
+                        param.args[0] = level
+                    }
+                }
+        )
     }
 }

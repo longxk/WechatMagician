@@ -7,7 +7,7 @@
     android:orientation="vertical"
     tools:context="com.gh0u1l5.wechatmagician.frontend.fragments.DonateFragment">
 
-    <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/donate_alipay"
         android:layout_width="match_parent"
         android:layout_height="120dp"
@@ -30,7 +30,7 @@
                 android:contentDescription="@string/donate_alipay"
                 android:src="@drawable/ic_alipay_mark" />
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="120dp"
                 android:layout_height="55dp"
                 android:layout_gravity="center_vertical"
@@ -40,9 +40,9 @@
                 android:textColor="@color/text_color"
                 app:autoSizeTextType="uniform" />
         </LinearLayout>
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
-    <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/donate_tenpay"
         android:layout_width="match_parent"
         android:layout_height="120dp"
@@ -58,5 +58,5 @@
             android:layout_gravity="center"
             android:contentDescription="@string/donate_wepay"
             android:src="@drawable/ic_wepay_logo" />
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 </LinearLayout>

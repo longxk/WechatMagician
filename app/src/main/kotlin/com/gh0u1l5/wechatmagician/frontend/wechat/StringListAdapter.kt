@@ -15,7 +15,7 @@ import de.robv.android.xposed.XposedHelpers
 
 class StringListAdapter(context: Context, strings: List<String>) :
         ArrayAdapter<String>(context, 0, strings) {
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         var view = convertView as LinearLayout?
         if (view == null) {
             val containerLayout = XposedHelpers.callMethod(parent, "generateDefaultLayoutParams")
