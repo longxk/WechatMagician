@@ -20,7 +20,7 @@ object MessageUtil {
         val start = msg.indexOf(0x2A) + 1
         val (lenSize, msgSize) = decodeMsgSize(start, msg)
 
-        val content = msg.sliceArray(start+lenSize..msg.size)
+        val content = msg.sliceArray(start+lenSize until msg.size)
         if (String(content).startsWith(head)){
             return msg
         }
@@ -38,7 +38,7 @@ object MessageUtil {
         val start = namestart + msg[namestart + 1].toInt() + 13
         val (lenSize, msgSize) = decodeMsgSize(start, msg)
 
-        val content = msg.sliceArray(start+lenSize..msg.size)
+        val content = msg.sliceArray(start+lenSize until msg.size)
         if (String(content).startsWith(head)){
             return msg
         }

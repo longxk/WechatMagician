@@ -45,8 +45,8 @@ class PrefFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPrefe
         }
 
         if (arguments != null) {
-            val preferencesResId = arguments!!.getInt(ARG_PREF_RES)
-            val preferencesName = arguments!!.getString(ARG_PREF_NAME)
+            val preferencesResId = requireArguments().getInt(ARG_PREF_RES)
+            val preferencesName = requireArguments().getString(ARG_PREF_NAME)
             preferenceManager.sharedPreferencesName = preferencesName
             addPreferencesFromResource(preferencesResId)
         }
@@ -54,7 +54,7 @@ class PrefFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPrefe
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return super.onCreateView(inflater, container, savedInstanceState)?.apply {
-            setBackgroundColor(ContextCompat.getColor(activity!!, R.color.card_background))
+            setBackgroundColor(ContextCompat.getColor(requireActivity(), R.color.card_background))
         }
     }
 
@@ -77,7 +77,7 @@ class PrefFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPrefe
                     val newState = if (hide) COMPONENT_ENABLED_STATE_DISABLED else COMPONENT_ENABLED_STATE_ENABLED
                     val className = "$MAGICIAN_PACKAGE_NAME.frontend.MainActivityAlias"
                     val componentName = ComponentName(MAGICIAN_PACKAGE_NAME, className)
-                    activity!!.packageManager.setComponentEnabledSetting(componentName, newState, DONT_KILL_APP)
+                    requireActivity().packageManager.setComponentEnabledSetting(componentName, newState, DONT_KILL_APP)
                 } catch (t: Throwable) {
                     Log.e(TAG, "Cannot hide icon: $t")
                     Toast.makeText(activity, t.localizedMessage, Toast.LENGTH_SHORT).show()
@@ -85,9 +85,9 @@ class PrefFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPrefe
             }
             SETTINGS_MODULE_LANGUAGE -> {
                 try {
-                    val language = LocaleUtil.getLanguage(activity!!)
-                    LocaleUtil.setLocale(activity!!, language)
-                    activity!!.recreate()
+                    val language = LocaleUtil.getLanguage(requireActivity())
+                    LocaleUtil.setLocale(requireActivity(), language)
+                    requireActivity().recreate()
                 } catch (t: Throwable) {
                     Log.e(TAG, "Cannot change language: $t")
                     Toast.makeText(activity, t.localizedMessage, Toast.LENGTH_SHORT).show()

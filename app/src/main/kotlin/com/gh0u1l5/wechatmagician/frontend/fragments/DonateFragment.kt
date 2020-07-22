@@ -29,11 +29,11 @@ class DonateFragment : Fragment() {
         super.onStart()
 
         // Hide Tenpay if the URI router is not hijacked.
-        requireHookStatus(activity!!, { status ->
+        requireHookStatus(requireActivity()) { status ->
             if (!status.contains(STATUS_FLAG_URI_ROUTER)) {
                 donate_tenpay.visibility = GONE
             }
-        })
+        }
 
         // Set onClick listeners for donation buttons.
         donate_alipay.setOnClickListener { view ->
