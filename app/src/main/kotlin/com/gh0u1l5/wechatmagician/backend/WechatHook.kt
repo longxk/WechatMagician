@@ -146,6 +146,8 @@ class WechatHook : IXposedHookLoadPackage {
                         if (param.thisObject !is Application) return
 
                         val context = param.args[0] as Context
+                        lpparam.classLoader = (param.thisObject as Application).classLoader
+                        log("wechat load classloader: ${lpparam.classLoader::class.java}")
 
                         handleLoadWechat(lpparam, context)
                         log("handleLoadWechatGenericPkg")
@@ -168,8 +170,6 @@ class WechatHook : IXposedHookLoadPackage {
         XposedBridge.hookMethod(method,
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
-                        log("handleLoadWechatPlayPkg hooked")
-
                         val context = param.args[0] as Context
                         val classLoader = param.result as ClassLoader
                         lpparam.classLoader = classLoader

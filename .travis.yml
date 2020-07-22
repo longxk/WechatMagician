@@ -1,19 +1,11 @@
 language: android
-jdk: oraclejdk8
-
-env:
-  global:
-    - BUILD_API=android-27
-    - BUILD_TOOLS=build-tools-27.0.3
+dist: trusty
 
 android:
   components:
-    - tools
-    - platform-tools
-    # The SDK version used to compile your project
-    - $BUILD_API
-    # The BuildTools version used by your project
-    - $BUILD_TOOLS
+    - build-tools-29.0.3
+    - android-29
+    - extra
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -24,6 +16,3 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
     - $HOME/.android/build-cache
-
-script:
-  - ./gradlew build check
