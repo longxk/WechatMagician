@@ -36,13 +36,14 @@ import com.gh0u1l5.wechatmagician.spellbook.util.BasicUtil.tryVerbosely
 import com.gh0u1l5.wechatmagician.spellbook.util.FileUtil
 import com.gh0u1l5.wechatmagician.spellbook.util.FileUtil.createTimeTag
 import com.gh0u1l5.wechatmagician.spellbook.util.MirrorUtil.generateReport
-import dalvik.system.BaseDexClassLoader
 import dalvik.system.PathClassLoader
 import de.robv.android.xposed.*
 import de.robv.android.xposed.XposedBridge.log
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
+import org.joor.Reflect
 import java.io.File
+
 
 // WechatHook is the entry point of the module, here we load all the plugins.
 class WechatHook : IXposedHookLoadPackage {
@@ -73,7 +74,7 @@ class WechatHook : IXposedHookLoadPackage {
                 val reportPath = "$storage/WechatMagician/reports/report-${createTimeTag()}.txt"
 
                 tryAsynchronously {
-                    val reportHead = listOf (
+                    val reportHead = listOf(
                             "Device: SDK${Build.VERSION.SDK_INT}-${Build.PRODUCT}",
                             "Xposed Version: ${XposedBridge.getXposedVersion()}",
                             "Wechat Version: $wxVersion",
@@ -122,64 +123,29 @@ class WechatHook : IXposedHookLoadPackage {
                     }
                 else -> if (isImportantWechatProcess(lpparam)) {
                     log("Wechat Magician: process = ${lpparam.processName}, version = ${BuildConfig.VERSION_NAME}")
-                    if (!handleLoadWechatPlayPkg(lpparam)) {
-                        handleLoadWechatGenericPkg(lpparam)
-                    }
+                    handleLoadMagician(lpparam)
                 }
             }
         }
     }
 
-    private fun handleLoadWechatGenericPkg(lpparam: LoadPackageParam) {
-        findAndHookMethod(
-                "android.content.ContextWrapper",
+    private fun handleLoadMagician(lpparam: LoadPackageParam) {
+        val method = XposedHelpers.findMethodExactIfExists(
+                "com.tencent.tinker.loader.app.TinkerApplication",
                 lpparam.classLoader,
                 "attachBaseContext",
-                Context::class.java,
-                object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        if (param.thisObject !is Application) return
-
-                    }
-
-                    override fun afterHookedMethod(param: MethodHookParam) {
-                        if (param.thisObject !is Application) return
-
-                        val context = param.args[0] as Context
-                        lpparam.classLoader = (param.thisObject as Application).classLoader
-                        log("wechat load classloader: ${lpparam.classLoader::class.java}")
-
-                        handleLoadWechat(lpparam, context)
-                        log("handleLoadWechatGenericPkg")
-                    }
-                }
-        )
-    }
-
-    private fun handleLoadWechatPlayPkg(lpparam: LoadPackageParam): Boolean {
-        val method = XposedHelpers.findMethodExactIfExists(
-                "com.tencent.tinker.loader.SystemClassLoaderAdder",
-                lpparam.classLoader,
-                "injectNewClassLoaderOnDemand",
-                Application::class.java,
-                BaseDexClassLoader::class.java,
-                C.Int
-        ) ?: return false
-
-
-        XposedBridge.hookMethod(method,
-                object : XC_MethodHook() {
-                    override fun afterHookedMethod(param: MethodHookParam) {
-                        val context = param.args[0] as Context
-                        val classLoader = param.result as ClassLoader
-                        lpparam.classLoader = classLoader
-
-                        handleLoadWechat(lpparam, context)
-                        log("handleLoadWechatPlayPkg")
-                    }
-                }
-        )
-        return true
+                Context::class.java
+        ) ?: return
+        XposedBridge.hookMethod(method, object : XC_MethodHook() {
+            @Throws(Throwable::class)
+            override fun afterHookedMethod(param: MethodHookParam) {
+                log("Wechat hook: $method")
+                val cl: ClassLoader = Reflect.on(param.thisObject).call("getClassLoader").get()
+                val context = param.args[0] as Context
+                lpparam.classLoader = cl
+                handleLoadWechat(lpparam, context)
+            }
+        })
     }
 
     @Suppress("DEPRECATION")
