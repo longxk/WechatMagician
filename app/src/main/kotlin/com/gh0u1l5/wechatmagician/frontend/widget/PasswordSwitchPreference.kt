@@ -3,10 +3,11 @@ package com.gh0u1l5.wechatmagician.frontend.widget
 import android.content.Context
 import android.preference.SwitchPreference
 import android.util.AttributeSet
+import androidx.preference.SwitchPreferenceCompat
 import com.gh0u1l5.wechatmagician.R
 import com.gh0u1l5.wechatmagician.util.PasswordUtil
 
-class PasswordSwitchPreference : SwitchPreference {
+class PasswordSwitchPreference : SwitchPreferenceCompat {
 
     constructor(context: Context) : super(context)
 
