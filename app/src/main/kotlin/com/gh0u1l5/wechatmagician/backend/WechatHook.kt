@@ -198,7 +198,7 @@ class WechatHook : IXposedHookLoadPackage {
 
     // handleLoadWechat is the entry point for Wechat hooking logic.
     private fun handleLoadWechat(lpparam: LoadPackageParam, context: Context) {
-        if (BuildConfig.DEBUG) enableXlogOutput(lpparam, true, 0)
+        //if (BuildConfig.DEBUG) enableXlogOutput(lpparam, true, 0)
 
         // Register receivers for frontend communications
         tryVerbosely {
