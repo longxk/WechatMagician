@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Environment.MEDIA_MOUNTED
+import android.os.Process
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import com.gh0u1l5.wechatmagician.BuildConfig
@@ -43,6 +44,8 @@ import de.robv.android.xposed.XposedHelpers.findAndHookMethod
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 import org.joor.Reflect
 import java.io.File
+import java.lang.Exception
+import java.lang.reflect.Method
 
 
 // WechatHook is the entry point of the module, here we load all the plugins.
@@ -123,19 +126,39 @@ class WechatHook : IXposedHookLoadPackage {
                     }
                 else -> if (isImportantWechatProcess(lpparam)) {
                     log("Wechat Magician: process = ${lpparam.processName}, version = ${BuildConfig.VERSION_NAME}")
-                    handleLoadMagician(lpparam)
+                    handleLoadWechat(lpparam)
                 }
             }
         }
     }
 
-    private fun handleLoadMagician(lpparam: LoadPackageParam) {
-        val method = XposedHelpers.findMethodExactIfExists(
-                "com.tencent.tinker.loader.app.TinkerApplication",
+    private fun getFirstMethodInHierarchy(className: String, classloader: ClassLoader,
+                                          methodName: String, vararg types: Any): Method? {
+        var clazz: Class<*>? = try {
+            Class.forName(className, true, classloader)
+        } catch (e: Exception) {
+            log("clazz null")
+            return null
+        }
+
+        do {
+            log("clazz $clazz")
+            val method = XposedHelpers.findMethodExactIfExists(clazz, methodName, *types)
+            if (method != null) return method
+            clazz = clazz?.superclass
+        } while (clazz != null)
+
+        return null
+    }
+
+    private fun handleLoadWechat(lpparam: LoadPackageParam) {
+        val method = getFirstMethodInHierarchy(
+                lpparam.appInfo.className,
                 lpparam.classLoader,
                 "attachBaseContext",
                 Context::class.java
-        ) ?: return
+        )
+        method ?: return
         XposedBridge.hookMethod(method, object : XC_MethodHook() {
             @Throws(Throwable::class)
             override fun afterHookedMethod(param: MethodHookParam) {
